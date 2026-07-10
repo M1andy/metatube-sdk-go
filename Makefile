@@ -49,6 +49,7 @@ development: BUILD_TAGS += experimental
 development:
 	$(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME) $(SERVER_CODE)
 
+server: BUILD_TAGS += experimental
 server:
 	$(GO_BUILD) -o $(BUILD_DIR)/$(SERVER_NAME) $(SERVER_CODE)
 
