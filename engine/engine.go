@@ -13,6 +13,7 @@ import (
 
 	"github.com/metatube-community/metatube-sdk-go/collection/maps"
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/common/fingerprint"
 	"github.com/metatube-community/metatube-sdk-go/database"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
@@ -27,6 +28,8 @@ type Engine struct {
 	name    string
 	timeout time.Duration
 	fetcher *fetch.Fetcher
+	// Fingerprint mode (default: uTLS).
+	fingerprintMode fingerprint.Mode
 	// Engine Logger
 	logger *log.Logger
 	// Name:Config Case-Insensitive Map

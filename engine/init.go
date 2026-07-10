@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/metatube-community/metatube-sdk-go/common/fetch"
+	"github.com/metatube-community/metatube-sdk-go/common/fingerprint"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
@@ -21,7 +22,11 @@ func (e *Engine) initLogger() {
 }
 
 func (e *Engine) initFetcher() {
-	e.fetcher = fetch.Default(&fetch.Config{Timeout: e.timeout})
+	cfg := &fetch.Config{Timeout: e.timeout}
+	if e.fingerprintMode == fingerprint.ModeOff {
+		cfg.Fingerprinter = nil // disable fingerprint
+	}
+	e.fetcher = fetch.Default(cfg)
 }
 
 // initActorProviders initializes actor providers.

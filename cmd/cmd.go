@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/peterbourgon/ff/v3"
 
+	"github.com/metatube-community/metatube-sdk-go/common/fingerprint"
 	"github.com/metatube-community/metatube-sdk-go/database"
 	"github.com/metatube-community/metatube-sdk-go/engine"
 	"github.com/metatube-community/metatube-sdk-go/internal/envconfig"
@@ -24,7 +25,8 @@ var Config = &struct {
 	DSN   string
 
 	// engine config
-	RequestTimeout time.Duration
+	RequestTimeout  time.Duration
+	FingerprintMode string
 
 	// database config
 	DBMaxIdleConns int
@@ -49,6 +51,7 @@ func init() {
 	flag.StringVar(&Config.Token, "token", "", "Token to access server")
 	flag.StringVar(&Config.DSN, "dsn", "", "Database Service Name")
 	flag.DurationVar(&Config.RequestTimeout, "request-timeout", engine.DefaultRequestTimeout, "Timeout per request")
+	flag.StringVar(&Config.FingerprintMode, "fingerprint-mode", "utls", "Browser fingerprint mode: utls, header, off")
 	flag.IntVar(&Config.DBMaxIdleConns, "db-max-idle-conns", 0, "Database max idle connections")
 	flag.IntVar(&Config.DBMaxOpenConns, "db-max-open-conns", 0, "Database max open connections")
 	flag.BoolVar(&Config.DBAutoMigrate, "db-auto-migrate", false, "Database auto migration")
@@ -76,6 +79,12 @@ func Router(names ...string) *gin.Engine {
 	if Config.RequestTimeout >= time.Second {
 		opts = append(opts, engine.WithRequestTimeout(Config.RequestTimeout))
 	}
+
+	// fingerprint mode (env var MT_FINGERPRINT_MODE overrides flag).
+	if mode := os.Getenv("MT_FINGERPRINT_MODE"); mode != "" {
+		Config.FingerprintMode = mode
+	}
+	opts = append(opts, engine.WithFingerprintMode(fingerprint.ParseMode(Config.FingerprintMode)))
 
 	// specify engine name
 	for _, name := range names {

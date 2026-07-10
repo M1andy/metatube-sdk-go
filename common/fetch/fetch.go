@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
 
+	"github.com/metatube-community/metatube-sdk-go/common/fingerprint"
 	"github.com/metatube-community/metatube-sdk-go/common/random"
 	"github.com/metatube-community/metatube-sdk-go/errors"
 )
@@ -41,6 +42,10 @@ type Config struct {
 	// Skip TLS verification. Applies only
 	// to *http.Transport based transport.
 	SkipVerify bool
+
+	// Browser fingerprint for HTTP requests.
+	// Defaults to fingerprint.DefaultFingerprinter (uTLS).
+	Fingerprinter fingerprint.Fingerprinter
 }
 
 type Fetcher struct {
@@ -83,6 +88,16 @@ func Default(cfg *Config) *Fetcher {
 	}
 	if cfg.Timeout > time.Second {
 		c.HTTPClient.Timeout = cfg.Timeout
+	}
+	// Set default fingerprinter if none configured.
+	if cfg.Fingerprinter == nil {
+		cfg.Fingerprinter = fingerprint.DefaultFingerprinter
+	}
+	// Apply fingerprint transport (e.g., uTLS) if available.
+	if fp := cfg.Fingerprinter; fp != nil {
+		if t := fp.Transport(); t != nil {
+			c.HTTPClient.Transport = t
+		}
 	}
 	if cfg.Transport != nil {
 		c.HTTPClient.Transport = cfg.Transport
@@ -131,6 +146,10 @@ func (f *Fetcher) Request(method, url string, body io.Reader, opts ...Option) (r
 	// apply options.
 	for _, option := range append(options, opts...) {
 		option.apply(c)
+	}
+	// apply fingerprint headers.
+	if c.Fingerprinter != nil {
+		_ = c.Fingerprinter.ApplyRequest(req)
 	}
 	// make HTTP request.
 	if resp, err = f.client.Do(req); err != nil {

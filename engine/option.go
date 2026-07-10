@@ -3,6 +3,7 @@ package engine
 import (
 	"time"
 
+	"github.com/metatube-community/metatube-sdk-go/common/fingerprint"
 	mt "github.com/metatube-community/metatube-sdk-go/provider"
 )
 
@@ -29,5 +30,13 @@ func WithActorProviderConfig(name string, config mt.Config) Option {
 func WithMovieProviderConfig(name string, config mt.Config) Option {
 	return func(e *Engine) {
 		e.movieProviderConfigs.Set(name, config)
+	}
+}
+
+// WithFingerprintMode sets the browser fingerprint simulation mode.
+// Supported modes: "utls" (default), "header", "off".
+func WithFingerprintMode(mode fingerprint.Mode) Option {
+	return func(e *Engine) {
+		e.fingerprintMode = mode
 	}
 }

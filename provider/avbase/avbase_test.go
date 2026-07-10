@@ -12,6 +12,14 @@ func TestAVBase_GetMovieInfoByID(t *testing.T) {
 		"tameike:MEYD-856",
 		"SSIS-354",
 		"glory:GVH-186",
+		"idp:IPX-534",
+		"idp:IPX-867",
+		"SSNI-369",
+		"SSNI-392",
+		"SSNI-497",
+		"SSNI-520",
+		"SSNI-436",
+		"PPPE-052",
 	})
 }
 

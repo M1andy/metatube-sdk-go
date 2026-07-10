@@ -8,6 +8,7 @@ import (
 	"go.uber.org/atomic"
 	"golang.org/x/text/language"
 
+	"github.com/metatube-community/metatube-sdk-go/common/fingerprint"
 	"github.com/metatube-community/metatube-sdk-go/provider"
 )
 
@@ -49,12 +50,18 @@ func NewScraper(name, base string, priority float64, lang language.Tag, opts ...
 }
 
 // NewDefaultScraper returns a *Scraper with default options enabled.
+// Includes browser fingerprint simulation (uTLS by default) and random User-Agent.
 func NewDefaultScraper(name, baseURL string, priority float64, lang language.Tag, opts ...Option) *Scraper {
-	return NewScraper(name, baseURL, priority, lang, append([]Option{
+	defaultOpts := []Option{
 		WithAllowURLRevisit(),
 		WithIgnoreRobotsTxt(),
-		WithRandomUserAgent(),
-	}, opts...)...)
+	}
+	// Enable fingerprint by default (uTLS + browser headers).
+	if fingerprint.DefaultFingerprinter != nil {
+		defaultOpts = append(defaultOpts, WithFingerprint(fingerprint.DefaultFingerprinter))
+	}
+	defaultOpts = append(defaultOpts, WithRandomUserAgent())
+	return NewScraper(name, baseURL, priority, lang, append(defaultOpts, opts...)...)
 }
 
 func (s *Scraper) Name() string { return s.name }

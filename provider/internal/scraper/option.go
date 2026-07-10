@@ -7,6 +7,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/debug"
 
+	"github.com/metatube-community/metatube-sdk-go/common/fingerprint"
 	"github.com/metatube-community/metatube-sdk-go/common/random"
 )
 
@@ -98,5 +99,35 @@ func WithTransport(transport http.RoundTripper) Option {
 func WithLimit(rule *colly.LimitRule) Option {
 	return func(s *Scraper) error {
 		return s.c.Limit(rule)
+	}
+}
+
+// WithFingerprint configures browser fingerprint simulation for the scraper.
+// It registers an OnRequest callback to inject browser headers and,
+// if the fingerprinter provides a custom transport, replaces the default transport.
+// Using fingerprint.DefaultFingerprinter applies the default mode (uTLS).
+// Pass nil to disable fingerprint.
+func WithFingerprint(f fingerprint.Fingerprinter) Option {
+	return func(s *Scraper) error {
+		if f == nil {
+			return nil
+		}
+		// Register OnRequest callback for header injection.
+		// This survives c.Clone() so ClonedCollector() retains fingerprint headers.
+		s.c.OnRequest(func(r *colly.Request) {
+			// Build a minimal *http.Request to apply fingerprint headers.
+			req := &http.Request{
+				Method: r.Method,
+				URL:    r.URL,
+				Header: r.Headers.Clone(),
+			}
+			_ = f.ApplyRequest(req)
+			*r.Headers = req.Header
+		})
+		// Replace transport if fingerprinter provides one (e.g., uTLS).
+		if t := f.Transport(); t != nil {
+			s.c.WithTransport(t)
+		}
+		return nil
 	}
 }

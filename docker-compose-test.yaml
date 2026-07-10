@@ -1,0 +1,15 @@
+# Docker E2E test stack for browser fingerprint verification.
+# Usage: docker compose -f docker-compose-test.yaml build
+#        docker compose -f docker-compose-test.yaml up --abort-on-container-exit
+services:
+  e2e-test:
+    build:
+      context: .
+      dockerfile: e2e/Dockerfile
+    container_name: metatube-e2e-test
+    environment:
+      - HTTP_PROXY=http://host.docker.internal:7890
+      - HTTPS_PROXY=http://host.docker.internal:7890
+      - MT_FINGERPRINT_MODE=utls
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
