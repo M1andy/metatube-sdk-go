@@ -12,7 +12,8 @@ import (
 	_ "github.com/metatube-community/metatube-sdk-go/provider/caribbeancom"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/caribbeancompr"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/dahlia"
-	_ "github.com/metatube-community/metatube-sdk-go/provider/duga"
+	// DUGA provider disabled: duga.jp is unreachable (timeout) since at least June 2026.
+	// _ "github.com/metatube-community/metatube-sdk-go/provider/duga"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/faleno"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fanza"
 	_ "github.com/metatube-community/metatube-sdk-go/provider/fc2"

@@ -19,7 +19,7 @@ import (
 	"github.com/metatube-community/metatube-sdk-go/common/singledo"
 	"github.com/metatube-community/metatube-sdk-go/model"
 	"github.com/metatube-community/metatube-sdk-go/provider"
-	"github.com/metatube-community/metatube-sdk-go/provider/duga"
+	// "github.com/metatube-community/metatube-sdk-go/provider/duga" // disabled: duga.jp unreachable
 	"github.com/metatube-community/metatube-sdk-go/provider/fanza"
 	"github.com/metatube-community/metatube-sdk-go/provider/getchu"
 	"github.com/metatube-community/metatube-sdk-go/provider/internal/scraper"
@@ -62,7 +62,7 @@ func New() *AVBase {
 			})),
 		single: singledo.NewSingle(2 * time.Hour),
 		providers: map[string]provider.MovieProvider{
-			"duga":    duga.New(),
+			// "duga":    duga.New(), // disabled: duga.jp unreachable
 			"fanza":   fanza.New(),
 			"getchu":  getchu.New(),
 			"mgstage": mgstage.New(),
@@ -175,7 +175,7 @@ func (ab *AVBase) getMovieInfoFromWork(work workResponse) (info *model.MovieInfo
 		Genres:        []string{},
 	}
 	sort.SliceStable(work.Products, func(i, j int) bool {
-		// we want mgs > fanza > duga, etc.
+		// we want mgs > fanza, etc.
 		return work.Products[i].Source > work.Products[j].Source
 	})
 	for _, product := range work.Products {
